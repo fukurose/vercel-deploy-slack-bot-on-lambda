@@ -6,15 +6,16 @@ import { blocks } from "./slack.mjs";
 export async function handler(event) {
   const contentType = event.headers["content-type"];
 
+  let responseBody = "Hello from Lambda!";
   if (contentType == "application/json") {
-    await handleJSON(event.body);
+    responseBody = await handleJSON(event.body);
   } else if (contentType == "application/x-www-form-urlencoded") {
-    await handleUrlEncoded(event.body);
+    responseBody = await handleUrlEncoded(event.body);
   }
 
   const response = {
     statusCode: 200,
-    body: "Hello!",
+    body: JSON.stringify(responseBody),
   };
   return response;
 }
@@ -34,6 +35,8 @@ const handleUrlEncoded = async (requestBody) => {
     text: result,
   };
   await postRequest(payload.response_url, headers, JSON.stringify(data));
+
+  return result;
 };
 
 const handleJSON = async (requestBody) => {
@@ -43,11 +46,7 @@ const handleJSON = async (requestBody) => {
     const responseBody = {
       challenge: body.challenge,
     };
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify(responseBody),
-    };
-    return response;
+    return responseBody;
   }
 
   if (body.event.type == "app_mention") {
@@ -66,11 +65,13 @@ const handleJSON = async (requestBody) => {
       headers,
       JSON.stringify(data)
     );
+
+    return "messageを送信しました";
   }
 };
 
 const handleAction = (payload) => {
-  // WebHook を kick するだけなので、設定不要
+  // WebHook を Kick するだけなので、設定不要
   const headers = {};
   const data = "";
 
