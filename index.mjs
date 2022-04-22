@@ -31,6 +31,8 @@ const handleUrlEncoded = async (requestBody) => {
   };
 
   const result = handleAction(payload);
+  console.log(result);
+
   const data = {
     text: result,
   };
